@@ -1,0 +1,2168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>明日方舟干员选择器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0c1a2c 0%, #152642 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(16, 31, 50, 0.8);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(80, 120, 160, 0.3);
+        }
+        
+        header {
+            background: linear-gradient(90deg, #1a3a5f 0%, #2a4a7a 100%);
+            padding: 25px 30px;
+            text-align: center;
+            border-bottom: 2px solid #d4af37;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        h1 i {
+            color: #d4af37;
+            margin-right: 15px;
+        }
+        
+        .subtitle {
+            color: #a0c8f0;
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 30px;
+            gap: 30px;
+            align-items: stretch;
+        }
+        
+        .left-panel {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(25, 45, 70, 0.6);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(80, 120, 160, 0.2);
+            height: 100%;
+        }
+        
+        .condition-toggle {
+            background: linear-gradient(90deg, #2a4a7a 0%, #3a5a8a 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        
+        .condition-toggle:hover {
+            background: linear-gradient(90deg, #3a5a8a 0%, #4a6a9a 100%);
+            transform: translateY(-2px);
+        }
+        
+        .condition-content {
+            background: rgba(20, 35, 55, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(80, 120, 160, 0.2);
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .condition-group {
+            margin-bottom: 25px;
+        }
+        
+        .condition-group h3 {
+            color: #d4af37;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding-bottom: 8px;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
+        }
+        
+        .option {
+            background: rgba(40, 65, 100, 0.5);
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        
+        .option:hover {
+            background: rgba(60, 95, 140, 0.7);
+            transform: translateY(-3px);
+        }
+        
+        .option.selected {
+            background: rgba(212, 175, 55, 0.3);
+            border: 1px solid #d4af37;
+            color: #ffea9d;
+            font-weight: bold;
+        }
+        
+        .result-area {
+            flex: 2;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            height: 100%;
+        }
+        
+        .result-display {
+            background: rgba(25, 45, 70, 0.6);
+            border-radius: 12px;
+            padding: 30px;
+            min-height: 350px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(80, 120, 160, 0.2);
+            position: relative;
+            overflow: visible;      /* 修改为visible，允许内容溢出 */
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            align-items: flex-start;
+            /* 移除 max-height: 720px; */
+        }
+        
+        .result-display::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #1a3a5f, #d4af37, #1a3a5f);
+        }
+        
+        .placeholder {
+            color: #a0c8f0;
+            font-size: 1.2rem;
+            text-align: center;
+            width: 100%;
+            padding: 50px 0;
+        }
+        
+        .operator-card {
+            background: linear-gradient(135deg, #1a3a5f 0%, #2a4a7a 100%);
+            border-radius: 12px;
+            padding: 20px;
+            width: 275px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(212, 175, 55, 0.5);
+            animation: cardAppear 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .operator-card.selected {
+            border: 3px solid #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            transform: translateY(-5px);
+        }
+        
+        .reroll-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        
+        .operator-card.selected .reroll-btn {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .reroll-btn:hover {
+            background: #ffd700;
+            color: #1a3a5f;
+            transform: scale(1.1) rotate(90deg);
+        }
+        
+        @keyframes cardAppear {
+            0% { transform: scale(0.8) rotateY(90deg); opacity: 0; }
+            100% { transform: scale(1) rotateY(0); opacity: 1; }
+        }
+        
+        .operator-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding-bottom: 10px;
+        }
+        
+        .operator-avatar {
+            width: 60px;
+            height: 60px;
+            /* border-radius: 50%; */
+            background: linear-gradient(45deg, #2a4a7a, #d4af37);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            color: white;
+            margin-right: 15px;
+            border: 3px solid #d4af37;
+        }
+        
+        .operator-info {
+            flex: 1;
+            text-align: left;
+        }
+        
+        .operator-name {
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 5px;
+            text-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+        }
+        
+        .operator-class {
+            display: inline-block;
+            background: rgba(212, 175, 55, 0.2);
+            color: #d4af37;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .operator-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .stat {
+            background: rgba(30, 50, 80, 0.6);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #a0c8f0;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.1rem;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .generate-btn {
+            background: linear-gradient(90deg, #d4af37 0%, #f0c850 100%);
+            color: #1a3a5f;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 0 auto;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.5);
+            background: linear-gradient(90deg, #f0c850 0%, #ffdf70 100%);
+        }
+        
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .generate-btn i {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 25px;
+            color: #a0c8f0;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(80, 120, 160, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .operator-card {
+                padding: 15px;
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .operator-name {
+                font-size: 1.4rem;
+            }
+        }
+        
+        .rarity {
+            display: flex;
+            justify-content: center;
+            margin: 8px 0 10px;
+        }
+        
+        .star {
+            color: #d4af37;
+            font-size: 1.2rem;
+            margin: 0 2px;
+        }
+        
+        /* 自定义导入区域样式 */
+        .custom-import {
+            background: rgba(30, 50, 80, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .custom-import textarea {
+            width: 100%;
+            height: 120px;
+            background: rgba(20, 35, 55, 0.7);
+            border: 1px solid rgba(80, 120, 160, 0.5);
+            border-radius: 8px;
+            color: #e0e0e0;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+            margin-bottom: 12px;
+        }
+        
+        .custom-import button {
+            background: rgba(60, 100, 150, 0.8);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .custom-import button:hover {
+            background: rgba(80, 130, 190, 0.9);
+            transform: translateY(-2px);
+        }
+        
+        .count-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .count-selector select {
+            background: rgba(40, 65, 100, 0.5);
+            color: white;
+            border: 1px solid rgba(80, 120, 160, 0.5);
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 1rem;
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            padding-right: 35px;
+        }
+        
+        .elite-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .elite-option {
+            background: rgba(40, 65, 100, 0.5);
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+            flex: 1;
+            min-width: 100px;
+        }
+        
+        .elite-option:hover {
+            background: rgba(60, 95, 140, 0.7);
+        }
+        
+        .elite-option.selected {
+            background: rgba(212, 175, 55, 0.3);
+            border: 1px solid #d4af37;
+            color: #ffea9d;
+            font-weight: bold;
+        }
+        
+        .elite-indicator {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #d4af37;
+            color: #1a3a5f;
+            font-weight: bold;
+            line-height: 24px;
+            text-align: center;
+            margin-right: 5px;
+        }
+        
+        .elite-indicator.elite-1 { background: #d4af37; }
+        .elite-indicator.elite-2 { background: #ff6b6b; }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(25, 45, 70, 0.95);
+            color: #d4af37;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border-left: 4px solid #d4af37;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .selection-hint {
+            text-align: center;
+            margin-top: 15px;
+            color: #d4af37;
+            font-size: 0.9rem;
+        }
+        
+        /* 自定义练度筛选区域 */
+        .custom-elite {
+            background: rgba(30, 50, 80, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .custom-elite.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .custom-elite-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        
+        .custom-elite-label {
+            flex: 1;
+            font-size: 1rem;
+            color: #a0c8f0;
+        }
+        
+        .custom-elite-input {
+            flex: 2;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .custom-elite-input select {
+            flex: 1;
+            background: rgba(40, 65, 100, 0.5);
+            color: white;
+            border: 1px solid rgba(80, 120, 160, 0.5);
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 1rem;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            padding-right: 35px;
+        }
+        
+        .custom-elite-input input {
+            flex: 1;
+            background: rgba(40, 65, 100, 0.5);
+            color: white;
+            border: 1px solid rgba(80, 120, 160, 0.5);
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 1rem;
+            /* 移除数字输入框的增减按钮 */
+            -moz-appearance: textfield;
+        }
+        
+        /* 隐藏数字输入框的增减按钮 */
+        .custom-elite-input input::-webkit-outer-spin-button,
+        .custom-elite-input input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        .elite-option.custom-option {
+            min-width: 120px;
+        }
+        
+        .custom-hint {
+            font-size: 0.9rem;
+            color: #d4af37;
+            text-align: center;
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 6px;
+        }
+        
+        /* 星级筛选区域 */
+        .rarity-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .rarity-option {
+            flex: 1;
+            min-width: 70px;
+            background: rgba(40, 65, 100, 0.5);
+            padding: 10px 5px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        
+        .rarity-option:hover {
+            background: rgba(60, 95, 140, 0.7);
+        }
+        
+        .rarity-option.selected {
+            background: rgba(212, 175, 55, 0.3);
+            border: 1px solid #d4af37;
+            color: #ffea9d;
+            font-weight: bold;
+        }
+        
+        .rarity-stars {
+            display: flex;
+            justify-content: center;
+            margin-top: 5px;
+        }
+        
+        .rarity-star {
+            color: #d4af37;
+            margin: 0 1px;
+        }
+        
+        /* 星级滑块 */
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            background: rgba(80, 120, 160, 0.3);
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #d4af37;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #d4af37;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .slider-value {
+            width: 50px;
+            text-align: center;
+            background: rgba(40, 65, 100, 0.5);
+            color: white;
+            border: 1px solid rgba(80, 120, 160, 0.5);
+            border-radius: 8px;
+            padding: 6px;
+            font-size: 1rem;
+        }
+        
+        /* 自定义星级面板 */
+        .custom-rarity {
+            background: rgba(30, 50, 80, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .custom-rarity.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .custom-rarity-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        
+        .custom-rarity-label {
+            flex: 1;
+            font-size: 1rem;
+            color: #a0c8f0;
+        }
+        
+        .rarity-slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 2;
+        }
+        
+        .rarity-slider-value {
+            min-width: 30px;
+            text-align: center;
+            background: rgba(40, 65, 100, 0.5);
+            color: white;
+            border: 1px solid rgba(80, 120, 160, 0.5);
+            border-radius: 8px;
+            padding: 6px;
+            font-size: 1rem;
+        }
+        
+        .rarity-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            background: rgba(80, 120, 160, 0.3);
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        .rarity-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #d4af37;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        /* 职业筛选区域 */
+        .class-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+        
+        .class-option {
+            background: rgba(40, 65, 100, 0.5);
+            padding: 12px 5px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        
+        .class-option:hover {
+            background: rgba(60, 95, 140, 0.7);
+        }
+        
+        .class-option.selected {
+            background: rgba(212, 175, 55, 0.3);
+            border: 1px solid #d4af37;
+            color: #ffea9d;
+            font-weight: bold;
+        }
+        
+        .class-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .class-name {
+            font-size: 0.85rem;
+        }
+        
+        /* 职业颜色定义 */
+        .class-vanguard { color: #4a8acc; }
+        .class-guard { color: #cc4a4a; }
+        .class-defender { color: #4acc7a; }
+        .class-sniper { color: #cccc4a; }
+        .class-caster { color: #9a4acc; }
+        .class-medic { color: #4acccc; }
+        .class-supporter { color: #cc7a4a; }
+        .class-specialist { color: #7a7acc; }
+        
+        .class-option.selected.class-vanguard { background: rgba(74, 138, 204, 0.3); }
+        .class-option.selected.class-guard { background: rgba(204, 74, 74, 0.3); }
+        .class-option.selected.class-defender { background: rgba(74, 204, 122, 0.3); }
+        .class-option.selected.class-sniper { background: rgba(204, 204, 74, 0.3); }
+        .class-option.selected.class-caster { background: rgba(154, 74, 204, 0.3); }
+        .class-option.selected.class-medic { background: rgba(74, 204, 204, 0.3); }
+        .class-option.selected.class-supporter { background: rgba(204, 122, 74, 0.3); }
+        .class-option.selected.class-specialist { background: rgba(122, 122, 204, 0.3); }
+        
+        /* 禁用干员区域 */
+        .disabled-toggle {
+            background: linear-gradient(90deg, #2a4a7a 0%, #3a5a8a 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        
+        .disabled-toggle:hover {
+            background: linear-gradient(90deg, #3a5a8a 0%, #4a6a9a 100%);
+            transform: translateY(-2px);
+        }
+        
+        .disabled-content {
+            background: rgba(20, 35, 55, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(80, 120, 160, 0.2);
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .disabled-search {
+            width: 100%;
+            padding: 10px 15px;
+            background: rgba(40, 65, 100, 0.5);
+            color: white;
+            border: 1px solid rgba(80, 120, 160, 0.5);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+        
+        .disabled-list {
+            max-height: 300px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            padding: 5px;
+        }
+        
+        .disabled-operator {
+            padding: 8px 12px;
+            background: rgba(40, 65, 100, 0.5);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+        
+        .disabled-operator:hover {
+            background: rgba(60, 95, 140, 0.7);
+        }
+        
+        .disabled-operator.disabled {
+            background: rgba(204, 74, 74, 0.3);
+            color: #ff9d9d;
+        }
+        
+        .disabled-operator.disabled::after {
+            content: "✕";
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+        
+        .disabled-count {
+            text-align: center;
+            margin-top: 15px;
+            color: #ff9d9d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-shield-alt"></i>明日方舟干员选择器</h1>
+            <p class="subtitle">根据您的需求，随机选择罗德岛的精英干员！支持星级、练度和职业筛选</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="left-panel">
+                <!--
+                <div class="condition-toggle" id="conditionToggle">
+                    <span>筛选条件</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                -->
+                <div class="condition-content" id="conditionContent">
+                    <div class="condition-group">
+                        <h3>选择数量</h3>
+                        <div class="count-selector">
+                            <span>选择数量：</span>
+                            <select id="countSelect">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6" selected>6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="condition-group">
+                        <h3>导入拥有的干员</h3>
+                        <div class="custom-import">
+                            <textarea id="customDataInput" placeholder="请从MAA的干员识别中获取您的干员数据并且粘贴至此再点击导入按钮..."></textarea>
+                            <div style="display:inline-flex;gap:10px;">
+                                <button id="importBtn">
+                                    <i class="fas fa-file-import"></i> 导入拥有的干员
+                                </button>
+                                <button id="clearBtn">
+                                    <i class="fas fa-trash"></i> 清空导入
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="condition-group" id="eliteGroup">
+                        <h3>选择练度</h3>
+                        <div class="elite-options">
+                            <div class="elite-option selected" data-elite="all">不限</div>
+                            <div class="elite-option" data-elite="1">精英化1</div>
+                            <div class="elite-option" data-elite="2">精英化2</div>
+                            <div class="elite-option custom-option" data-elite="custom">自定义练度</div>
+                        </div>
+                        
+                        <div class="custom-elite" id="customElite">
+                            <div class="custom-elite-row">
+                                <div class="custom-elite-label">精英化</div>
+                                <div class="custom-elite-input">
+                                    <select id="eliteSelect">
+                                        <option value="0">精英化0</option>
+                                        <option value="1">精英化1</option>
+                                        <option value="2">精英化2</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="custom-elite-row">
+                                <div class="custom-elite-label">等级</div>
+                                <div class="slider-container">
+                                    <input type="range" min="0" max="90" value="50" class="slider" id="levelSlider">
+                                    <input type="text" class="slider-value" id="levelValue" value="50" readonly>
+                                </div>
+                            </div>
+                            
+                            <div class="custom-hint">
+                                <i class="fas fa-info-circle"></i> 筛选规则：精英化等级大于设定值，或等级大于等于设定值
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="condition-group">
+                        <h3>选择星级</h3>
+                        <div class="rarity-options">
+                            <div class="rarity-option selected" data-rarity="all">
+                                不限
+                            </div>
+                            <div class="rarity-option" data-rarity="4">
+                                四星
+                            </div>
+                            <div class="rarity-option" data-rarity="5">
+                                五星
+                            </div>
+                            <div class="rarity-option" data-rarity="6">
+                                六星
+                            </div>
+                            <div class="rarity-option" data-rarity="custom">
+                                自定义范围
+                            </div>
+                        </div>
+                        
+                        <!-- 自定义星级面板 -->
+                        <div class="custom-rarity" id="customRarity">
+                            <div class="custom-rarity-row">
+                                <div class="custom-rarity-label">最小星级</div>
+                                <div class="rarity-slider-container">
+                                    <input type="range" min="1" max="6" value="4" class="rarity-slider" id="minRaritySlider">
+                                    <div class="rarity-slider-value" id="minRarityValue">4</div>
+                                </div>
+                            </div>
+                            
+                            <div class="custom-rarity-row">
+                                <div class="custom-rarity-label">最大星级</div>
+                                <div class="rarity-slider-container">
+                                    <input type="range" min="1" max="6" value="6" class="rarity-slider" id="maxRaritySlider">
+                                    <div class="rarity-slider-value" id="maxRarityValue">6</div>
+                                </div>
+                            </div>
+                            
+                            <div class="custom-hint">
+                                <i class="fas fa-info-circle"></i> 筛选规则：星级在最小星级和最大星级之间（包含边界）
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 职业筛选区域 -->
+                    <div class="condition-group">
+                        <h3>选择职业</h3>
+                        <div class="class-options">
+                            <div class="class-option selected class-all" data-class="all">
+                                <img src="https://pic.mksucai.com/00/39/27/9306ad811912e23b.webp" style="width: 36px; height: 36px;">
+                                <div class="class-name">不限</div>
+                            </div>
+                            <div class="class-option class-vanguard" data-class="先锋">
+                                <div class="class-icon">
+                                    <img src="https://patchwiki.biligame.com/images/arknights/c/cf/0n7u8rtl9y54fpxieha4jyjjdyjbusm.png" style="width: 36px; height: 36px;">
+                                </div>
+                                <div class="class-name">先锋</div>
+                            </div>
+                            <div class="class-option class-guard" data-class="近卫">
+                                <img src="https://patchwiki.biligame.com/images/arknights/8/8d/k69dnkbl2j085fvpihw8o6frcdw2jv7.png"  style="width: 36px; height: 36px;">
+                                <div class="class-name">近卫</div>
+                            </div>
+                            <div class="class-option class-defender" data-class="重装">
+                                <img src="https://patchwiki.biligame.com/images/arknights/7/72/4iadn71ynyoi5nu49dukusqa8sc82ta.png"  style="width: 36px; height: 36px;">
+                                <div class="class-name">重装</div>
+                            </div>
+                            <div class="class-option class-sniper" data-class="狙击">
+                                <img src="https://patchwiki.biligame.com/images/arknights/2/2c/ed2pwjknd2jxo7m5j491fuf77sh7snp.png"  style="width: 36px; height: 36px;">
+                                <div class="class-name">狙击</div>
+                            </div>
+                            <div class="class-option class-caster" data-class="术士">
+                                <img src="https://patchwiki.biligame.com/images/arknights/b/b5/9yyg7lyer9zsv633mzcjsytvphang40.png"  style="width: 36px; height: 36px;">
+                                <div class="class-name">术士</div>
+                            </div>
+                            <div class="class-option class-medic" data-class="医疗">
+                                <img src="https://patchwiki.biligame.com/images/arknights/3/3e/1qhkyvhvwqk8lmemyauy1cqsrzpbb2q.png"  style="width: 36px; height: 36px;">
+                                <div class="class-name">医疗</div>
+                            </div>
+                            <div class="class-option class-supporter" data-class="辅助">
+                                <img src="https://patchwiki.biligame.com/images/arknights/4/41/sw1qqg85ch9t2p60f9bekxg7k1fy3pw.png"  style="width: 36px; height: 36px;">
+                                <div class="class-name">辅助</div>
+                            </div>
+                            <div class="class-option class-specialist" data-class="特种">
+                                <img src="https://patchwiki.biligame.com/images/arknights/b/b3/0udp864f9w6hykeq2fbnvkj6hdjmmmb.png"  style="width: 36px; height: 36px;">
+                                <div class="class-name">特种</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 新增禁用干员区域 -->
+                    <div class="condition-group">
+                        <h3>禁用干员</h3>
+                        <div class="disabled-toggle" id="disabledToggle">
+                            <span>选择禁用的干员</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        
+                        <div class="disabled-content" id="disabledContent">
+                            <input type="text" class="disabled-search" id="disabledSearch" placeholder="搜索干员名称...">
+                            <div class="disabled-list" id="disabledList"></div>
+                            <div class="disabled-count" id="disabledCount">已禁用: 0 个干员</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="result-area">
+                <div class="result-display">
+                    <div class="placeholder" id="placeholder">
+                        <i class="fas fa-user-circle" style="font-size: 5rem; margin-bottom: 20px; opacity: 0.3;"></i>
+                        <p>点击"随机选择"按钮获取干员</p>
+                        <p style="margin-top: 20px; font-size: 1rem; color: #a0c8f0;">
+                            <i class="fas fa-lightbulb"></i> 提示：您可以按星级、练度和职业筛选干员
+                        </p>
+                    </div>
+                </div>
+                
+                <button class="generate-btn" id="generateBtn">
+                    <i class="fas fa-random"></i> 随机选择干员
+                </button>
+                
+                <div class="selection-hint" id="selectionHint">
+                    <i class="fas fa-mouse-pointer"></i> 点击卡片选择干员，然后点击右上角按钮可单独重roll<br>
+                    未导入干员数据时,默认满图鉴满潜满练
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>制作BY哔哩哔哩@木薯然</p>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i> 干员数据导入成功！
+    </div>
+
+    <script>
+        /*
+        // 展开/收起条件选择面板
+        const conditionToggle = document.getElementById('conditionToggle');
+        const conditionContent = document.getElementById('conditionContent');
+        const chevronIcon = conditionToggle.querySelector('i');
+        
+        conditionToggle.addEventListener('click', () => {
+            if (conditionContent.style.display === 'block') {
+                conditionContent.style.display = 'none';
+                chevronIcon.className = 'fas fa-chevron-down';
+            } else {
+                conditionContent.style.display = 'block';
+                chevronIcon.className = 'fas fa-chevron-up';
+            }
+        });
+        */
+        // 让面板默认显示
+        document.getElementById('conditionContent').style.display = 'block';
+
+        // 禁用干员面板切换
+        const disabledToggle = document.getElementById('disabledToggle');
+        const disabledContent = document.getElementById('disabledContent');
+        const disabledChevron = disabledToggle.querySelector('i');
+        
+        disabledToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (disabledContent.style.display === 'block') {
+                disabledContent.style.display = 'none';
+                disabledChevron.className = 'fas fa-chevron-down';
+            } else {
+                disabledContent.style.display = 'block';
+                disabledChevron.className = 'fas fa-chevron-up';
+            }
+        });
+        
+        // 练度选择功能
+        const eliteOptions = document.querySelectorAll('.elite-option');
+        const customElite = document.getElementById('customElite');
+        
+        eliteOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                eliteOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                
+                // 显示/隐藏自定义练度面板
+                if (option.dataset.elite === 'custom') {
+                    customElite.classList.add('active');
+                } else {
+                    customElite.classList.remove('active');
+                }
+            });
+        });
+        
+        // 星级选择功能
+        const rarityOptions = document.querySelectorAll('.rarity-option');
+        const customRarity = document.getElementById('customRarity');
+        
+        rarityOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                rarityOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                
+                // 显示/隐藏自定义星级面板
+                if (option.dataset.rarity === 'custom') {
+                    customRarity.classList.add('active');
+                } else {
+                    customRarity.classList.remove('active');
+                }
+            });
+        });
+        
+        // 职业选择功能
+        const classOptions = document.querySelectorAll('.class-option');
+        
+        classOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // 如果点击的是"不限"选项
+                if (option.dataset.class === 'all') {
+                    // 清除所有选择
+                    classOptions.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                } 
+                // 如果点击的是其他职业
+                else {
+                    // 如果"不限"已被选中，先取消选中
+                    const allOption = document.querySelector('.class-option[data-class="all"]');
+                    if (allOption.classList.contains('selected')) {
+                        allOption.classList.remove('selected');
+                    }
+                    
+                    // 切换当前选项的选择状态
+                    option.classList.toggle('selected');
+                    
+                    // 如果没有选中任何职业，则选中"不限"
+                    const selectedClasses = document.querySelectorAll('.class-option.selected');
+                    if (selectedClasses.length === 0) {
+                        allOption.classList.add('selected');
+                    }
+                }
+            });
+        });
+        
+        // 干员数据
+        const operators_default = [
+            { name: "圣约送葬人", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:"https://media.prts.wiki/7/7e/%E5%A4%B4%E5%83%8F_%E5%9C%A3%E7%BA%A6%E9%80%81%E8%91%AC%E4%BA%BA.png"  },
+            { name: "引星棘刺", class: "特种", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:"https://media.prts.wiki/3/3b/%E5%A4%B4%E5%83%8F_%E5%BC%95%E6%98%9F%E6%A3%98%E5%88%BA.png"  },
+            { name: "烛煌", class: "术士", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:"https://media.prts.wiki/c/c4/%E5%A4%B4%E5%83%8F_%E7%83%9B%E7%85%8C.png"  },
+            { name: "荒芜拉普兰德", class: "术士", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:"https://media.prts.wiki/0/04/%E5%A4%B4%E5%83%8F_%E8%8D%92%E8%8A%9C%E6%8B%89%E6%99%AE%E5%85%B0%E5%BE%B7.png"  },
+            { name: "维娜·维多利亚", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:"https://media.prts.wiki/6/68/%E5%A4%B4%E5%83%8F_%E7%BB%B4%E5%A8%9C%C2%B7%E7%BB%B4%E5%A4%9A%E5%88%A9%E4%BA%9A.png"  },
+            { name: "弑君者", class: "特种", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:"https://media.prts.wiki/1/12/%E5%A4%B4%E5%83%8F_%E5%BC%91%E5%90%9B%E8%80%85.png"  },
+            { name: "烈夏", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:"https://media.prts.wiki/6/65/%E5%A4%B4%E5%83%8F_%E7%83%88%E5%A4%8F.png"  },
+            { name: "斩业星熊", class: "重装", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "司霆惊蛰", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "w", class: "狙击", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "余", class: "重装", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "灵知", class: "辅助", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "安洁莉娜", class: "辅助", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "和弦", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "灰喉", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "斯卡蒂", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "诗怀雅", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "慑砂", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "隐德来希", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "忍冬", class: "先锋", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "寻澜", class: "先锋", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "仇白", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "哈洛德", class: "医疗", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "多萝西", class: "特种", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "图耶", class: "医疗", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "莱伊", class: "狙击", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "阿斯卡纶", class: "特种", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "逻各斯", class: "术士", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "莎草", class: "医疗", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "玛露西尔", class: "术士", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "齐尔查克", class: "先锋", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "渡桥", class: "先锋", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "妮芙", class: "术士", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "莱欧斯", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "森西", class: "重装", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "裁度", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "凯瑟琳", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "瑰盐", class: "医疗", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "特克诺", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "云迹", class: "特种", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "菲莱", class: "重装", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "钼铅", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "行箸", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "诺威尔", class: "医疗", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "水灯心", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "录武官", class: "医疗", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "松桐", class: "先锋", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "Mon3tr", class: "医疗", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "阿兰娜", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "遥", class: "辅助", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "吉星", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "焰尾", class: "先锋", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "瑕光", class: "重装", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "远牙", class: "狙击", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "灰毫", class: "重装", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "波卜", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "折光", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "帕拉斯", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "死芒", class: "术士", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "风丸", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "掠风", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "棘刺", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "杜宾", class: "近卫", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "玛恩纳", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "斥罪", class: "重装", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "铸铁", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "史尔特尔", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "假日威龙陈", class: "狙击", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "炎熔", class: "术士", rarity: 3, elite: 1, level: 55, potential: 6 ,avatar:""  },
+            { name: "维什戴尔", class: "狙击", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "初雪", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "德克萨斯", class: "先锋", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "风笛", class: "先锋", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "澄闪", class: "术士", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "黑", class: "狙击", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "令", class: "辅助", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "莫斯提马", class: "术士", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "闪灵", class: "医疗", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "截云", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "凯尔希", class: "医疗", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "百炼嘉维尔", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "鸿雪", class: "狙击", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "淬羽赫默", class: "辅助", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "提丰", class: "狙击", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "号角", class: "重装", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "灰烬", class: "狙击", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "谜图", class: "先锋", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "焰影苇草", class: "医疗", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "铅踝", class: "狙击", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "洛洛", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "艾雅法拉", class: "术士", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "普罗旺斯", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "酒神", class: "辅助", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "贝娜", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "纯烬艾雅法拉", class: "医疗", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "歌蕾蒂娅", class: "特种", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "拜松", class: "重装", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "历阵锐枪芬", class: "先锋", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "银灰", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "双月", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "塑心", class: "辅助", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "白金", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "浊心斯卡蒂", class: "辅助", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "麒麟R夜刀", class: "特种", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "极境", class: "先锋", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "夜莺", class: "医疗", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "洋灰", class: "重装", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "因陀罗", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "缄默德克萨斯", class: "特种", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "煌", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "骋风", class: "近卫", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "能天使", class: "狙击", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "蚀清", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "艾拉", class: "特种", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "新约能天使", class: "特种", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "乌尔比安", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "衡沙", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "刻俄柏", class: "术士", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "泥岩", class: "重装", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "水月", class: "特种", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "跃跃", class: "狙击", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "菲亚梅塔", class: "狙击", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "归溟幽灵鲨", class: "特种", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "电弧", class: "辅助", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "耀骑士临光", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "锏", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "艾丽妮", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "青枳", class: "先锋", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "重岳", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "石英", class: "近卫", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "铃兰", class: "辅助", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "林", class: "术士", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "嘉维尔", class: "医疗", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "山", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "缪尔赛思", class: "先锋", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "年", class: "重装", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "塞雷娅", class: "重装", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "至简", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "森蚺", class: "重装", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "明椒", class: "医疗", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "星熊", class: "重装", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "铎铃", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "空弦", class: "狙击", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "黑键", class: "术士", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "黍", class: "重装", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "蕾缪安", class: "狙击", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "见行者", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "霍尔海雅", class: "术士", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "异客", class: "术士", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "老鲤", class: "特种", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "伊芙利特", class: "术士", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "断崖", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "流明", class: "医疗", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "阿米娅", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "史都华德", class: "术士", rarity: 3, elite: 1, level: 55, potential: 6 ,avatar:""  },
+            { name: "伊内丝", class: "先锋", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "刻刀", class: "近卫", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "拉普兰德", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "华法琳", class: "医疗", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "米格鲁", class: "重装", rarity: 3, elite: 1, level: 55, potential: 6 ,avatar:""  },
+            { name: "温蒂", class: "特种", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "崖心", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "桃金娘", class: "先锋", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "晓歌", class: "先锋", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "白面鸮", class: "医疗", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "蜜莓", class: "医疗", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "调香师", class: "医疗", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "雷蛇", class: "重装", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "砾", class: "特种", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "安哲拉", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "安比尔", class: "狙击", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "特米米", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "桑葚", class: "医疗", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "海沫", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "九色鹿", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "流星", class: "狙击", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "孑", class: "特种", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "羽毛笔", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "琴柳", class: "先锋", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "伊桑", class: "特种", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "凛视", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "地灵", class: "辅助", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "龙舌兰", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "巫恋", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "卡夫卡", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "夕", class: "术士", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "临光", class: "重装", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "推进之王", class: "先锋", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "蓝毒", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "蛇屠箱", class: "重装", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "早露", class: "狙击", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "魔王", class: "辅助", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "苍苔", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "狮蝎", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "埃拉托", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "豆苗", class: "先锋", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "梅", class: "狙击", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "清流", class: "医疗", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "古米", class: "重装", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "芬", class: "先锋", rarity: 3, elite: 1, level: 55, potential: 6 ,avatar:""  },
+            { name: "斑点", class: "重装", rarity: 3, elite: 1, level: 55, potential: 6 ,avatar:""  },
+            { name: "梓兰", class: "辅助", rarity: 3, elite: 1, level: 55, potential: 6 ,avatar:""  },
+            { name: "波登可", class: "辅助", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "炎客", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "锡人", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "月见夜", class: "近卫", rarity: 3, elite: 1, level: 55, potential: 6 ,avatar:""  },
+            { name: "克洛丝", class: "狙击", rarity: 3, elite: 1, level: 55, potential: 6 ,avatar:""  },
+            { name: "安赛尔", class: "医疗", rarity: 3, elite: 1, level: 55, potential: 6 ,avatar:""  },
+            { name: "赫拉格", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "阿消", class: "特种", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "爱丽丝", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "星极", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "红", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "罗宾", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "陈", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "稀音", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "芳汀", class: "近卫", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "卡达", class: "术士", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "涤火杰西卡", class: "重装", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "贾维", class: "先锋", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "苏苏洛", class: "医疗", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "慕斯", class: "近卫", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "槐琥", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "宴", class: "近卫", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "露托", class: "重装", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "莱恩哈特", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "暴雨", class: "重装", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "暗索", class: "特种", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "耶拉", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "清道夫", class: "先锋", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "娜仁图亚", class: "狙击", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "左乐", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "红豆", class: "先锋", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "陨星", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "幽灵鲨", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "霜叶", class: "近卫", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "白雪", class: "狙击", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "隐现", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "远山", class: "术士", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "迷迭香", class: "狙击", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "断罪者", class: "近卫", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "泡泡", class: "重装", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "红云", class: "狙击", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "翎羽", class: "先锋", rarity: 3, elite: 1, level: 55, potential: 6 ,avatar:""  },
+            { name: "真理", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "琳琅诗怀雅", class: "特种", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "火神", class: "重装", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "休谟斯", class: "近卫", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "坚雷", class: "重装", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "布丁", class: "术士", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "芙蓉", class: "医疗", rarity: 3, elite: 1, level: 55, potential: 6 ,avatar:""  },
+            { name: "夏栎", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "巡林者", class: "狙击", rarity: 2, elite: 0, level: 30, potential: 6 ,avatar:""  },
+            { name: "讯使", class: "先锋", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "杰西卡", class: "狙击", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "深海色", class: "辅助", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "安德切尔", class: "狙击", rarity: 3, elite: 1, level: 55, potential: 6 ,avatar:""  },
+            { name: "赤冬", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "罗小黑", class: "近卫", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "黑角", class: "重装", rarity: 2, elite: 0, level: 30, potential: 6 ,avatar:""  },
+            { name: "Castle-3", class: "近卫", rarity: 1, elite: 0, level: 30, potential: 6 ,avatar:""  },
+            { name: "正义骑士号", class: "狙击", rarity: 1, elite: 0, level: 30, potential: 6 ,avatar:""  },
+            { name: "U-Official", class: "辅助", rarity: 1, elite: 0, level: 30, potential: 6 ,avatar:""  },
+            { name: "惊蛰", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "夜刀", class: "特种", rarity: 2, elite: 0, level: 30, potential: 6 ,avatar:""  },
+            { name: "12F", class: "术士", rarity: 2, elite: 0, level: 30, potential: 6 ,avatar:""  },
+            { name: "泰拉大陆调查团", class: "狙击", rarity: 1, elite: 0, level: 30, potential: 6 ,avatar:""  },
+            { name: "杏仁", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "Lancet-2", class: "医疗", rarity: 1, elite: 0, level: 30, potential: 6 ,avatar:""  },
+            { name: "THRM-EX", class: "特种", rarity: 1, elite: 0, level: 30, potential: 6 ,avatar:""  },
+            { name: "玫兰莎", class: "近卫", rarity: 3, elite: 1, level: 55, potential: 6 ,avatar:""  },
+            { name: "伺夜", class: "先锋", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "佩佩", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "止颂", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "卡涅利安", class: "术士", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "嵯峨", class: "先锋", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "赫德雷", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "薇薇安娜", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "信仰搅拌机", class: "重装", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "白铁", class: "辅助", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "薄绿", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "麦哲伦", class: "辅助", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "傀影", class: "特种", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "红隼", class: "先锋", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "万顷", class: "先锋", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "阿", class: "特种", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:""  },
+            { name: "四月", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "格拉尼", class: "先锋", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "夜烟", class: "术士", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "承曦格雷伊", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "凛冬", class: "先锋", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "苇草", class: "先锋", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "夜半", class: "先锋", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "奥达", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "暮落", class: "重装", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "暴行", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "布洛卡", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "导火索", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "赫默", class: "医疗", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "野鬃", class: "先锋", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "柏喙", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "鞭刃", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "达格达", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "火龙S黑角", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "摩根", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "医生", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "芙兰卡", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "聆音", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "燧石", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "战车", class: "近卫", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "车尔尼", class: "重装", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "火哨", class: "重装", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "绮良", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "可颂", class: "重装", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "闪击", class: "重装", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "深巡", class: "重装", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "乌有", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "吽", class: "重装", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "极光", class: "重装", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "深律", class: "重装", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "石棉", class: "重装", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "奥斯塔", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "守林人", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "送葬人", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "苦艾", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "子月", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "冰酿", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "寒芒克洛丝", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "玫拉", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "熔泉", class: "狙击", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "寒檀", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "戴菲恩", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "Miss.Christine", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "阿罗玛", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "蜜蜡", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "天火", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "星源", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "炎狱炎熔", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "微风", class: "医疗", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "温米", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "雪绒", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "夜魔", class: "术士", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "空爆", class: "狙击", rarity: 3, elite: 1, level: 55, potential: 6 ,avatar:""  },
+            { name: "末药", class: "医疗", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "刺玫", class: "医疗", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "锡兰", class: "医疗", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "絮雨", class: "医疗", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "濯尘芙蓉", class: "医疗", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "但书", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "海蒂", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "艾丝黛尔", class: "近卫", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "亚叶", class: "医疗", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "格劳克斯", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "海霓", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "空", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "梅尔", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "月禾", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "空构", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "小满", class: "辅助", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "蒂比", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "食铁兽", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "霜华", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "雪雉", class: "特种", rarity: 5, elite: 2, level: 80, potential: 6 ,avatar:""  },
+            { name: "杰克", class: "近卫", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "角峰", class: "重装", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "缠丸", class: "近卫", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "猎蜂", class: "近卫", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "松果", class: "狙击", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "酸糖", class: "狙击", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "格雷伊", class: "术士", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "深靛", class: "术士", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "褐果", class: "医疗", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "维荻", class: "特种", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "泡普卡", class: "近卫", rarity: 3, elite: 1, level: 55, potential: 6 ,avatar:""  },
+            { name: "罗比菈塔", class: "辅助", rarity: 4, elite: 2, level: 70, potential: 6 ,avatar:""  },
+            { name: "香草", class: "先锋", rarity: 3, elite: 1, level: 55, potential: 6 ,avatar:""  },
+            { name: "卡缇", class: "重装", rarity: 3, elite: 1, level: 55, potential: 6 ,avatar:""  },
+            { name: "杜林", class: "辅助", rarity: 2, elite: 0, level: 30, potential: 6 ,avatar:""  },
+            { name: "CONFESS-47", class: "先锋", rarity: 1, elite: 0, level: 30, potential: 6 ,avatar:""  },
+            { name: "PhonoR-0", class: "辅助", rarity: 1, elite: 0, level: 30, potential: 6 ,avatar:""  },
+            { name: "Friston-3", class: "重装", rarity: 1, elite: 0, level: 30, potential: 6 ,avatar:""  },
+        ];
+        let operators = operators_default;
+        // 用户自定义干员数据
+        let customOperators = [];
+        
+        // 禁用干员列表
+        let disabledOperators = [];
+        
+        // 导入按钮功能
+        const importBtn = document.getElementById('importBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const customDataInput = document.getElementById('customDataInput');
+        const notification = document.getElementById('notification');
+        
+        importBtn.addEventListener('click', () => {
+            try {
+                const data = JSON.parse(customDataInput.value);
+                if (Array.isArray(data)) {
+                    customOperators = data;
+                    
+                    // 显示通知
+                    notification.classList.add('show');
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                    }, 3000);
+                    
+                    console.log('导入成功:', customOperators);
+                } else {
+                    alert('导入失败：数据格式不正确，请确保是有效的JSON数组');
+                }
+            } catch (e) {
+                alert('导入失败：' + e.message);
+            }
+        });
+
+        clearBtn.addEventListener('click', () => {
+            customOperators = [];
+            operators = operators_default;
+            customDataInput.value = '';
+            notification.classList.add('show');
+            notification.innerHTML = '<i class="fas fa-trash"></i> 已清空导入数据，恢复默认干员！';
+            setTimeout(() => {
+                notification.classList.remove('show');
+                notification.innerHTML = '<i class="fas fa-check-circle"></i> 干员数据导入成功！';
+            }, 3000);
+            console.log('已清空导入数据，恢复默认干员');
+        });
+        
+        // 随机选择干员
+        const generateBtn = document.getElementById('generateBtn');
+        const placeholder = document.getElementById('placeholder');
+        const resultDisplay = document.querySelector('.result-display');
+        const countSelect = document.getElementById('countSelect');
+        const selectionHint = document.getElementById('selectionHint');
+        
+        // 当前显示的干员列表
+        let currentSelectedOperators = [];
+        
+        // 等级滑块和值显示
+        const levelSlider = document.getElementById('levelSlider');
+        const levelValue = document.getElementById('levelValue');
+        
+        levelSlider.addEventListener('input', () => {
+            levelValue.value = levelSlider.value;
+        });
+        
+        levelValue.addEventListener('input', () => {
+            let value = parseInt(levelValue.value);
+            if (isNaN(value)) value = 0;
+            if (value < 0) value = 0;
+            if (value > 90) value = 90;
+            levelSlider.value = value;
+            levelValue.value = value;
+        });
+        
+        // 星级滑块
+        const minRaritySlider = document.getElementById('minRaritySlider');
+        const minRarityValue = document.getElementById('minRarityValue');
+        const maxRaritySlider = document.getElementById('maxRaritySlider');
+        const maxRarityValue = document.getElementById('maxRarityValue');
+        
+        minRaritySlider.addEventListener('input', () => {
+            minRarityValue.textContent = minRaritySlider.value;
+            // 确保最小星级不大于最大星级
+            if (parseInt(minRaritySlider.value) > parseInt(maxRaritySlider.value)) {
+                maxRaritySlider.value = minRaritySlider.value;
+                maxRarityValue.textContent = minRaritySlider.value;
+            }
+        });
+        
+        maxRaritySlider.addEventListener('input', () => {
+            maxRarityValue.textContent = maxRaritySlider.value;
+            // 确保最大星级不小于最小星级
+            if (parseInt(maxRaritySlider.value) < parseInt(minRaritySlider.value)) {
+                minRaritySlider.value = maxRaritySlider.value;
+                minRarityValue.textContent = maxRaritySlider.value;
+            }
+        });
+        
+        // 禁用干员功能
+        const disabledSearch = document.getElementById('disabledSearch');
+        const disabledList = document.getElementById('disabledList');
+        const disabledCount = document.getElementById('disabledCount');
+        
+        // 渲染禁用列表
+        function renderDisabledList() {
+            const searchTerm = disabledSearch.value.toLowerCase();
+            disabledList.innerHTML = '';
+            
+            operators.forEach(operator => {
+                if (operator.name.toLowerCase().includes(searchTerm)) {
+                    const isDisabled = disabledOperators.includes(operator.name);
+                    const operatorEl = document.createElement('div');
+                    operatorEl.className = `disabled-operator ${isDisabled ? 'disabled' : ''}`;
+                    operatorEl.textContent = operator.name;
+                    operatorEl.dataset.name = operator.name;
+                    
+                    operatorEl.addEventListener('click', () => {
+                        const index = disabledOperators.indexOf(operator.name);
+                        if (index === -1) {
+                            // 添加禁用
+                            disabledOperators.push(operator.name);
+                        } else {
+                            // 移除禁用
+                            disabledOperators.splice(index, 1);
+                        }
+                        renderDisabledList();
+                        updateDisabledCount();
+                    });
+                    
+                    disabledList.appendChild(operatorEl);
+                }
+            });
+        }
+        
+        // 更新禁用计数
+        function updateDisabledCount() {
+            disabledCount.textContent = `已禁用: ${disabledOperators.length} 个干员`;
+        }
+        
+        // 搜索功能
+        disabledSearch.addEventListener('input', renderDisabledList);
+        
+        // 随机选择功能
+        generateBtn.addEventListener('click', () => {
+            // 获取选择数量
+            const count = parseInt(countSelect.value);
+            
+            // 清空结果区域
+            resultDisplay.innerHTML = '';
+            
+            // 获取选中的练度选项
+            const eliteOption = document.querySelector('.elite-option.selected');
+            const eliteLevel = eliteOption.dataset.elite;
+            
+            // 获取选中的星级选项
+            const rarityOption = document.querySelector('.rarity-option.selected');
+            const selectedRarity = rarityOption.dataset.rarity;
+            
+            // 获取选中的职业
+            const selectedClassOptions = document.querySelectorAll('.class-option.selected');
+            const selectedClasses = [];
+            selectedClassOptions.forEach(option => {
+                if (option.dataset.class !== 'all') {
+                    selectedClasses.push(option.dataset.class);
+                }
+            });
+            
+            // 如果没有任何职业被选中（包括不限），则使用所有职业
+            const useAllClasses = selectedClasses.length === 0 || 
+                document.querySelector('.class-option[data-class="all"]').classList.contains('selected');
+            
+            // 获取数据源
+            let sourceOperators = operators;
+            if (customOperators.length > 0) {
+                // 使用自定义数据源
+                sourceOperators = customOperators.map(op => {
+                    const base = operators.find(o => o.name === op.name) || {};
+                    return {
+                        ...base,
+                        ...op,
+                        class: base.class || "未知"
+                    };
+                });
+            }
+            
+            // 根据练度筛选
+            let filteredOperators = sourceOperators;
+            
+            if (eliteLevel === 'all') {
+                // 无限制
+                filteredOperators = sourceOperators;
+            } 
+            else if (eliteLevel === '1' || eliteLevel === '2') {
+                // 精英化等级筛选
+                filteredOperators = sourceOperators.filter(op => op.elite >= parseInt(eliteLevel));
+            }
+            else if (eliteLevel === 'custom') {
+                // 自定义练度筛选
+                const customElite = parseInt(document.getElementById('eliteSelect').value);
+                const customLevel = parseInt(levelSlider.value);
+                
+                filteredOperators = sourceOperators.filter(op => {
+                    // 精英化等级大于设定值，直接通过
+                    if (op.elite > customElite) return true;
+                    
+                    // 精英化等级相等且等级大于等于设定值，通过
+                    if (op.elite === customElite && op.level >= customLevel) return true;
+                    
+                    return false;
+                });
+            }
+            
+            // 根据星级筛选
+            if (selectedRarity !== 'all') {
+                if (selectedRarity === 'custom') {
+                    // 自定义星级范围
+                    const minRarity = parseInt(minRaritySlider.value);
+                    const maxRarity = parseInt(maxRaritySlider.value);
+                    filteredOperators = filteredOperators.filter(op => 
+                        op.rarity >= minRarity && op.rarity <= maxRarity
+                    );
+                } else {
+                    const rarityValue = parseInt(selectedRarity);
+                    filteredOperators = filteredOperators.filter(op => op.rarity === rarityValue);
+                }
+            }
+            
+            // 根据职业筛选
+            if (!useAllClasses && selectedClasses.length > 0) {
+                filteredOperators = filteredOperators.filter(op => 
+                    selectedClasses.includes(op.class)
+                );
+            }
+            
+            // 过滤掉禁用的干员
+            filteredOperators = filteredOperators.filter(op => 
+                !disabledOperators.includes(op.name)
+            );
+            
+            // 如果筛选后没有干员，显示提示
+            if (filteredOperators.length === 0) {
+                resultDisplay.innerHTML = `
+                    <div class="placeholder">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 5rem; margin-bottom: 20px; color: #ff6b6b;"></i>
+                        <p>没有找到符合条件的干员！</p>
+                        <p style="margin-top: 20px; font-size: 1rem; color: #a0c8f0;">
+                            请尝试调整筛选条件或导入更多干员数据
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 随机选择干员
+            currentSelectedOperators = [];
+            const availableOperators = [...filteredOperators];
+            
+            for (let i = 0; i < count && availableOperators.length > 0; i++) {
+                const randomIndex = Math.floor(Math.random() * availableOperators.length);
+                currentSelectedOperators.push(availableOperators[randomIndex]);
+                availableOperators.splice(randomIndex, 1);
+            }
+            
+            // 显示选中的干员
+            currentSelectedOperators.forEach(op => {
+                const card = createOperatorCard(op);
+                resultDisplay.appendChild(card);
+            });
+            
+            // 隐藏占位符并显示选择提示
+            placeholder.style.display = 'none';
+            selectionHint.style.display = 'block';
+        });
+        
+        // 创建干员卡片函数
+        function createOperatorCard(operator) {
+            const card = document.createElement('div');
+            card.className = 'operator-card';
+            card.dataset.id = operator.name; 
+            
+            // 星级
+            let rarity = '';
+            for (let i = 0; i < operator.rarity; i++) {
+                rarity += '<span class="star">★</span>';
+            }
+            
+            // // 职业颜色
+            // const classColors = {
+            //     "先锋": "linear-gradient(45deg, #2a4a7a, #4a8acc)",
+            //     "近卫": "linear-gradient(45deg, #7a2a2a, #cc4a4a)",
+            //     "重装": "linear-gradient(45deg, #2a7a4a, #4acc7a)",
+            //     "狙击": "linear-gradient(45deg, #7a7a2a, #cccc4a)",
+            //     "术士": "linear-gradient(45deg, #5a2a7a, #9a4acc)",
+            //     "医疗": "linear-gradient(45deg, #2a7a7a, #4acccc)",
+            //     "辅助": "linear-gradient(45deg, #7a4a2a, #cc7a4a)",
+            //     "特种": "linear-gradient(45deg, #4a4a7a, #7a7acc)"
+            // };
+            
+            // const avatarColor = classColors[operator.class] || "linear-gradient(45deg, #2a4a7a, #d4af37)";
+            
+            // 精英化图标
+            let eliteIcon = '';
+            if (operator.elite === 1) {
+                eliteIcon = '<span class="elite-indicator elite-1">1</span>';
+            } else if (operator.elite === 2) {
+                eliteIcon = '<span class="elite-indicator elite-2">2</span>';
+            }
+            
+            card.innerHTML = `
+                <div class="reroll-btn">
+                    <i class="fas fa-redo"></i>
+                </div>
+                
+                <div class="operator-header">
+                    <div class="operator-avatar" style="background: white;">
+                        <img src="${operator.avatar}"  style="width:100%;height:100%;">
+                    </div>
+                    <div class="operator-info">
+                        <div class="operator-name">${operator.name}</div>
+                        <div class="operator-class">${operator.class} 潜能 ${operator.potential}</div>
+                    </div>
+                </div>
+                
+                <div class="rarity">
+                    ${rarity}
+                </div>
+                
+                <div style="margin-top:16px;text-align:center;">
+                    精英化${operator.elite} &nbsp;&nbsp;|&nbsp;&nbsp; 等级 ${operator.level}
+                </div>
+            `;
+            
+            // 卡片点击事件
+            card.addEventListener('click', (e) => {
+                // 如果点击的是重roll按钮，则不触发卡片选择
+                if (e.target.closest('.reroll-btn')) return;
+                
+                // 取消所有卡片的选中状态
+                document.querySelectorAll('.operator-card').forEach(c => {
+                    c.classList.remove('selected');
+                });
+                
+                // 选中当前卡片
+                card.classList.add('selected');
+            });
+            
+            // 重roll按钮事件
+            const rerollBtn = card.querySelector('.reroll-btn');
+            rerollBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                // 如果当前卡片未被选中
+                if (!card.classList.contains('selected')) {
+                    // 清除其他所有卡片的选中状态
+                    document.querySelectorAll('.operator-card').forEach(c => {
+                        c.classList.remove('selected');
+                    });
+                    
+                    // 选中当前卡片
+                    card.classList.add('selected');
+                    
+                    // 不执行重roll操作，等待用户再次点击
+                    return;
+                }
+                
+                // 如果卡片已被选中，则执行重roll
+                rerollOperator(operator.name);
+            });
+            
+            // 添加动画
+            card.style.animation = 'none';
+            setTimeout(() => {
+                card.style.animation = 'cardAppear 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            }, 10);
+            
+            return card;
+        }
+        
+        // 重roll单个干员
+        function rerollOperator(operatorName) {
+            // 获取选中的练度选项
+            const eliteOption = document.querySelector('.elite-option.selected');
+            const eliteLevel = eliteOption.dataset.elite;
+            
+            // 获取选中的星级选项
+            const rarityOption = document.querySelector('.rarity-option.selected');
+            const selectedRarity = rarityOption.dataset.rarity;
+            
+            // 获取选中的职业
+            const selectedClassOptions = document.querySelectorAll('.class-option.selected');
+            const selectedClasses = [];
+            selectedClassOptions.forEach(option => {
+                if (option.dataset.class !== 'all') {
+                    selectedClasses.push(option.dataset.class);
+                }
+            });
+            
+            // 如果没有任何职业被选中（包括不限），则使用所有职业
+            const useAllClasses = selectedClasses.length === 0 || 
+                document.querySelector('.class-option[data-class="all"]').classList.contains('selected');
+            
+            // 获取数据源
+            let sourceOperators = operators;
+            if (customOperators.length > 0) {
+                // 使用自定义数据源
+                sourceOperators = customOperators.map(op => {
+                    const base = operators.find(o => o.name === op.name) || {};
+                    return {
+                        ...base,
+                        ...op,
+                        class: base.class || "未知"
+                    };
+                });
+            }
+            
+            // 根据练度筛选
+            let filteredOperators = sourceOperators;
+            
+            if (eliteLevel === 'all') {
+                // 无限制
+                filteredOperators = sourceOperators;
+            } 
+            else if (eliteLevel === '1' || eliteLevel === '2') {
+                // 精英化等级筛选
+                filteredOperators = sourceOperators.filter(op => op.elite >= parseInt(eliteLevel));
+            }
+            else if (eliteLevel === 'custom') {
+                // 自定义练度筛选
+                const customElite = parseInt(document.getElementById('eliteSelect').value);
+                const customLevel = parseInt(levelSlider.value);
+                
+                filteredOperators = sourceOperators.filter(op => {
+                    // 精英化等级大于设定值，直接通过
+                    if (op.elite > customElite) return true;
+                    
+                    // 精英化等级相等且等级大于等于设定值，通过
+                    if (op.elite === customElite && op.level >= customLevel) return true;
+                    
+                    return false;
+                });
+            }
+            
+            // 根据星级筛选
+            if (selectedRarity !== 'all') {
+                if (selectedRarity === 'custom') {
+                    // 自定义星级范围
+                    const minRarity = parseInt(minRaritySlider.value);
+                    const maxRarity = parseInt(maxRaritySlider.value);
+                    filteredOperators = filteredOperators.filter(op => 
+                        op.rarity >= minRarity && op.rarity <= maxRarity
+                    );
+                } else {
+                    const rarityValue = parseInt(selectedRarity);
+                    filteredOperators = filteredOperators.filter(op => op.rarity === rarityValue);
+                }
+            }
+            
+            // 根据职业筛选
+            if (!useAllClasses && selectedClasses.length > 0) {
+                filteredOperators = filteredOperators.filter(op => 
+                    selectedClasses.includes(op.class)
+                );
+            }
+            
+            // 过滤掉禁用的干员
+            filteredOperators = filteredOperators.filter(op => 
+                !disabledOperators.includes(op.name)
+            );
+            
+            // 不排除当前已显示的其他干员
+            const availableOperators = filteredOperators.filter(op => 
+                op.name !== operatorName
+            );
+
+            // 如果筛选后没有干员，显示提示
+            if (availableOperators.length === 0) {
+                notification.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 没有可替换的干员了！';
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    notification.innerHTML = '<i class="fas fa-check-circle"></i> 干员数据导入成功！';
+                }, 2000);
+                return;
+            }
+            
+            // 随机选择一个新干员
+            const randomIndex = Math.floor(Math.random() * availableOperators.length);
+            const newOperator = availableOperators[randomIndex];
+            
+            // 更新当前显示的干员列表
+            const operatorIndex = currentSelectedOperators.findIndex(op => op.name === operatorName);
+            if (operatorIndex !== -1) {
+                currentSelectedOperators[operatorIndex] = newOperator;
+            }
+            
+            // 创建新卡片
+            const newCard = createOperatorCard(newOperator);
+            
+            // 替换旧卡片
+            const oldCard = document.querySelector(`.operator-card[data-id="${operatorName}"]`);
+            oldCard.parentNode.replaceChild(newCard, oldCard);  
+            
+            // 选中新卡片
+            newCard.classList.add('selected');
+        }
+        
+        // 初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            // 默认隐藏选择提示
+            selectionHint.style.display = 'none';
+            
+            // 添加自定义练度面板的切换事件
+            const customOption = document.querySelector('.elite-option[data-elite="custom"]');
+            customOption.addEventListener('click', () => {
+                customElite.classList.add('active');
+            });
+            
+            // 添加自定义星级面板的切换事件
+            const customRarityOption = document.querySelector('.rarity-option[data-rarity="custom"]');
+            customRarityOption.addEventListener('click', () => {
+                customRarity.classList.add('active');
+            });
+            
+            // 初始化滑块值显示
+            levelValue.value = levelSlider.value;
+            minRarityValue.textContent = minRaritySlider.value;
+            maxRarityValue.textContent = maxRaritySlider.value;
+            
+            // 渲染禁用列表
+            renderDisabledList();
+            updateDisabledCount();
+        });
+    </script>
+</body>
+</html>
+
