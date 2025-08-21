@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-    <!--重置了自定义星级的显示-->
+    <!--增加了简约版的显示-->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1110,10 +1110,104 @@
             margin-top: 8px;
         }
 
+        .view-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(212, 175, 55, 0.3);
+            color: #d4af37;
+            border: 1px solid #d4af37;
+            border-radius: 20px;
+            padding: 8px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .view-toggle:hover {
+            background: rgba(212, 175, 55, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        /* 简约版卡片样式 */
+        .simple-mode .operator-card {
+            width: 180px;
+            padding: 15px;
+        }
+
+        .simple-mode .operator-header {
+            flex-direction: column;
+            text-align: center;
+            margin-bottom: 5px;
+            border-bottom: none !important;
+        }
+        
+        .simple-mode .operator-avatar {
+            margin-right: 0;
+            margin-bottom: 10px;
+            width: 70px;
+            height: 70px;
+        }
+        
+        .simple-mode .operator-stats,
+        .simple-mode .rarity {
+            display: none;
+        }
+        
+        .simple-mode .operator-info {
+            text-align: center;
+        }
+        
+        .simple-mode .operator-name {
+            font-size: 1.2rem;
+        }
+        
+        
+        .simple-mode .skill-display {
+            min-height: 30px;
+            font-size: 0.8rem;
+            padding: 8px;
+        }
+        
+        .simple-mode .random-skill-btn {
+            padding: 6px 10px;
+            font-size: 0.8rem;
+        }
+        
+        .simple-mode .skill-hint {
+            display: none;
+        }
+        .simple-mode .skill-section {
+            border-top: none !important;
+            margin-top: 0px; /* 原来是10px，改小一点 */
+            padding-top: 0px;
+        }
+        
+        /* 简约版结果区域调整 */
+        .simple-mode .result-display {
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        /* 简约版选择提示 */
+        .simple-mode .selection-hint {
+            font-size: 0.8rem;
+        }
+
     </style>
 </head>
 <body>
     <div class="container">
+
+        <div class="view-toggle" id="viewToggle">
+            <i class="fas fa-exchange-alt"></i>
+            <span>切换到简约版</span>
+        </div>
+
         <header>
             <h1><img src="https://patchwiki.biligame.com/images/arknights/thumb/6/6a/qvvez8zf5ikr7sg0cl0be7x1hfms1mo.png/75px-Icon_rhodes_island.png" alt="logo" style="width:100px;height:80px;vertical-align:-15px;margin-right:5px;">
                 明日方舟干员选择器</h1>
@@ -1360,6 +1454,45 @@
     </div>
 
     <script>
+
+        // 简约版状态
+        let isSimpleMode = false;
+        const viewToggle = document.getElementById('viewToggle');
+        const container = document.querySelector('.container');
+        
+        // 简约版切换功能
+        viewToggle.addEventListener('click', () => {
+            isSimpleMode = !isSimpleMode;
+            
+            if (isSimpleMode) {
+                container.classList.add('simple-mode');
+                viewToggle.innerHTML = '<i class="fas fa-exchange-alt"></i><span>切换到完整版</span>';
+            } else {
+                container.classList.remove('simple-mode');
+                viewToggle.innerHTML = '<i class="fas fa-exchange-alt"></i><span>切换到简约版</span>';
+            }
+            
+            // 重新渲染当前显示的干员
+            if (currentSelectedOperators.length > 0) {
+                const resultDisplay = document.querySelector('.result-display');
+                resultDisplay.innerHTML = '';
+                
+                currentSelectedOperators.forEach(op => {
+                    const card = createOperatorCard(op);
+                    resultDisplay.appendChild(card);
+                    
+                    // 为简约版也设置随机技能
+                    setTimeout(() => {
+                        randomSkill(op);
+                    }, 50);
+                });
+            }
+            
+            // 保存用户偏好
+            localStorage.setItem('simpleMode', isSimpleMode);
+        });
+        
+    
         // 干员数据
             const operators_default = [
                 { name: "圣约送葬人", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:"https://media.prts.wiki/7/7e/%E5%A4%B4%E5%83%8F_%E5%9C%A3%E7%BA%A6%E9%80%81%E8%91%AC%E4%BA%BA.png",skills: ["终结技艺", "净尘之道", "圣约裁决"]  },
@@ -2293,76 +2426,100 @@
             selectionHint.style.display = 'block';
         });
         
-        // 创建干员卡片函数
+        // 修改创建卡片函数以支持简约版
         function createOperatorCard(operator) {
             const card = document.createElement('div');
             card.className = 'operator-card';
             card.dataset.id = operator.name; 
             
-            // 星级
-            let rarity = '';
-            for (let i = 0; i < operator.rarity; i++) {
-                rarity += '<span class="star">★</span>';
+            // 根据模式选择不同的HTML结构
+            if (isSimpleMode) {
+                // 简约版卡片HTML
+                card.innerHTML = `
+                    <div class="reroll-btn">
+                        <i class="fas fa-redo"></i>
+                    </div>
+                    
+                    <div class="operator-header">
+                        <div class="operator-avatar" style="background: white;">
+                            <img src="${operator.avatar}" style="width:100%;height:100%;">
+                        </div>
+                        <div class="operator-info">
+                            <div class="operator-name">${operator.name}</div>
+                            <div class="operator-class">${operator.class}</div>
+                        </div>
+                    </div>
+
+                    <div class="skill-section">
+                        <div class="skill-display" id="skill-${operator.name.replace(/\s+/g, '-')}">
+                            <i class="fas fa-info-circle"></i> 点击随机技能
+                        </div>
+                        <button class="random-skill-btn" data-operator="${operator.name}">
+                            <i class="fas fa-dice"></i> 随机技能
+                        </button>
+                    </div>
+                `;
+            } else {
+                // 完整版卡片HTML (保持原样)
+                // 星级
+                let rarity = '';
+                for (let i = 0; i < operator.rarity; i++) {
+                    rarity += '<span class="star">★</span>';
+                }
+                
+                // 精英化图标
+                let eliteIcon = '';
+                if (operator.elite === 1) {
+                    eliteIcon = '<span class="elite-indicator elite-1">1</span>';
+                } else if (operator.elite === 2) {
+                    eliteIcon = '<span class="elite-indicator elite-2">2</span>';
+                }
+                
+                card.innerHTML = `
+                    <div class="reroll-btn">
+                        <i class="fas fa-redo"></i>
+                    </div>
+                    
+                    <div class="operator-header">
+                        <div class="operator-avatar" style="background: white;">
+                            <img src="${operator.avatar}"  style="width:100%;height:100%;">
+                        </div>
+                        <div class="operator-info">
+                            <div class="operator-name">${operator.name}</div>
+                            <div class="operator-class">${operator.class} 潜能 ${operator.potential}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="rarity">
+                        ${rarity}
+                    </div>
+
+                    <div style="margin-top:16px;text-align:center;">
+                        精英化${operator.elite} &nbsp;&nbsp;|&nbsp;&nbsp; 等级 ${operator.level}
+                    </div>
+
+                    <div class="skill-section">
+                        <div class="skill-display" id="skill-${operator.name.replace(/\s+/g, '-')}">
+                            <i class="fas fa-info-circle"></i> 点击下方按钮随机技能
+                        </div>
+                        <button class="random-skill-btn" data-operator="${operator.name}">
+                            <i class="fas fa-dice"></i> 随机技能
+                        </button>
+                        <div class="skill-hint">
+                            ${operator.rarity === 6 ? '3个技能随机' : operator.rarity >= 4 ? '2个技能随机' : '1个技能'}
+                        </div>
+                    </div>
+                `;
             }
             
-            // 精英化图标
-            let eliteIcon = '';
-            if (operator.elite === 1) {
-                eliteIcon = '<span class="elite-indicator elite-1">1</span>';
-            } else if (operator.elite === 2) {
-                eliteIcon = '<span class="elite-indicator elite-2">2</span>';
-            }
-            
-            card.innerHTML = `
-                <div class="reroll-btn">
-                    <i class="fas fa-redo"></i>
-                </div>
-                
-                <div class="operator-header">
-                    <div class="operator-avatar" style="background: white;">
-                        <img src="${operator.avatar}"  style="width:100%;height:100%;">
-                    </div>
-                    <div class="operator-info">
-                        <div class="operator-name">${operator.name}</div>
-                        <div class="operator-class">${operator.class} 潜能 ${operator.potential}</div>
-                    </div>
-                </div>
-                
-                <div class="rarity">
-                    ${rarity}
-                </div>
-
-                <div style="margin-top:16px;text-align:center;">
-                    精英化${operator.elite} &nbsp;&nbsp;|&nbsp;&nbsp; 等级 ${operator.level}
-                </div>
-
-                <div class="skill-section">
-                    <div class="skill-display" id="skill-${operator.name.replace(/\s+/g, '-')}">
-                        <i class="fas fa-info-circle"></i> 点击下方按钮随机技能
-                    </div>
-                    <button class="random-skill-btn" data-operator="${operator.name}">
-                        <i class="fas fa-dice"></i> 随机技能
-                    </button>
-                    <div class="skill-hint">
-                        ${operator.rarity === 6 ? '3个技能随机' : operator.rarity >= 4 ? '2个技能随机' : '1个技能'}
-                    </div>
-                </div>
-            
-
-                
-            `;
-            console.log(card.innerHTML);
             // 卡片点击事件
             card.addEventListener('click', (e) => {
-                // 如果点击的是重roll按钮，则不触发卡片选择
                 if (e.target.closest('.reroll-btn')) return;
                 
-                // 取消所有卡片的选中状态
                 document.querySelectorAll('.operator-card').forEach(c => {
                     c.classList.remove('selected');
                 });
                 
-                // 选中当前卡片
                 card.classList.add('selected');
             });
             
@@ -2371,21 +2528,15 @@
             rerollBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 
-                // 如果当前卡片未被选中
                 if (!card.classList.contains('selected')) {
-                    // 清除其他所有卡片的选中状态
                     document.querySelectorAll('.operator-card').forEach(c => {
                         c.classList.remove('selected');
                     });
                     
-                    // 选中当前卡片
                     card.classList.add('selected');
-                    
-                    // 不执行重roll操作，等待用户再次点击
                     return;
                 }
                 
-                // 如果卡片已被选中，则执行重roll
                 rerollOperator(operator.name);
             });
             
@@ -2568,6 +2719,12 @@
 
         // 初始化
         window.addEventListener('DOMContentLoaded', () => {
+            const savedMode = localStorage.getItem('simpleMode');
+            if (savedMode === 'true') {
+                isSimpleMode = true;
+                container.classList.add('simple-mode');
+                viewToggle.innerHTML = '<i class="fas fa-exchange-alt"></i><span>切换到完整版</span>';
+            }
             // 默认隐藏选择提示
             selectionHint.style.display = 'none';
             
@@ -2596,4 +2753,3 @@
     </script>
 </body>
 </html>
-
