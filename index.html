@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-    <!--ban掉的干员最上方显示,重置了自定义星级的显示-->
+    <!--重置了自定义星级的显示-->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1063,6 +1063,53 @@
         .dropdown.active .dropdown-header i {
             transform: rotate(180deg);
         }
+
+        /* 技能相关样式 */
+        .skill-section {
+            margin-top: 15px;
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+            padding-top: 15px;
+        }
+        
+        .skill-display {
+            background: rgba(30, 50, 80, 0.6);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #ffea9d;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        
+        .random-skill-btn {
+            background: rgba(60, 100, 150, 0.8);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+        
+        .random-skill-btn:hover {
+            background: rgba(80, 130, 190, 0.9);
+            transform: translateY(-2px);
+        }
+        
+        .skill-hint {
+            font-size: 0.8rem;
+            color: #a0c8f0;
+            text-align: center;
+            margin-top: 8px;
+        }
+
     </style>
 </head>
 <body>
@@ -1314,7 +1361,7 @@
     <script>
         // 干员数据
             const operators_default = [
-                { name: "圣约送葬人", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:"https://media.prts.wiki/7/7e/%E5%A4%B4%E5%83%8F_%E5%9C%A3%E7%BA%A6%E9%80%81%E8%91%AC%E4%BA%BA.png"  },
+                { name: "圣约送葬人", class: "近卫", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:"https://media.prts.wiki/7/7e/%E5%A4%B4%E5%83%8F_%E5%9C%A3%E7%BA%A6%E9%80%81%E8%91%AC%E4%BA%BA.png",skills: ["终结技艺", "净尘之道", "圣约裁决"]  },
                 { name: "引星棘刺", class: "特种", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:"https://media.prts.wiki/3/3b/%E5%A4%B4%E5%83%8F_%E5%BC%95%E6%98%9F%E6%A3%98%E5%88%BA.png"  },
                 { name: "烛煌", class: "术士", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:"https://media.prts.wiki/c/c4/%E5%A4%B4%E5%83%8F_%E7%83%9B%E7%85%8C.png"  },
                 { name: "荒芜拉普兰德", class: "术士", rarity: 6, elite: 2, level: 90, potential: 6 ,avatar:"https://media.prts.wiki/0/04/%E5%A4%B4%E5%83%8F_%E8%8D%92%E8%8A%9C%E6%8B%89%E6%99%AE%E5%85%B0%E5%BE%B7.png"  },
@@ -2235,6 +2282,9 @@
             currentSelectedOperators.forEach(op => {
                 const card = createOperatorCard(op);
                 resultDisplay.appendChild(card);
+                setTimeout(() => {
+                    randomSkill(op);
+                }, 50); // 稍微延迟一下，让卡片动画完成
             });
             
             // 隐藏占位符并显示选择提示
@@ -2280,12 +2330,27 @@
                 <div class="rarity">
                     ${rarity}
                 </div>
-                
+
                 <div style="margin-top:16px;text-align:center;">
                     精英化${operator.elite} &nbsp;&nbsp;|&nbsp;&nbsp; 等级 ${operator.level}
                 </div>
-            `;
+
+                <div class="skill-section">
+                    <div class="skill-display" id="skill-${operator.name.replace(/\s+/g, '-')}">
+                        <i class="fas fa-info-circle"></i> 点击下方按钮随机技能
+                    </div>
+                    <button class="random-skill-btn" data-operator="${operator.name}">
+                        <i class="fas fa-dice"></i> 随机技能
+                    </button>
+                    <div class="skill-hint">
+                        ${operator.rarity === 6 ? '3个技能随机' : operator.rarity >= 4 ? '2个技能随机' : '1个技能'}
+                    </div>
+                </div>
             
+
+                
+            `;
+            console.log(card.innerHTML);
             // 卡片点击事件
             card.addEventListener('click', (e) => {
                 // 如果点击的是重roll按钮，则不触发卡片选择
@@ -2321,6 +2386,13 @@
                 
                 // 如果卡片已被选中，则执行重roll
                 rerollOperator(operator.name);
+            });
+            
+            // 随机技能按钮事件
+            const skillBtn = card.querySelector('.random-skill-btn');
+            skillBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                randomSkill(operator);
             });
             
             // 添加动画
@@ -2459,8 +2531,40 @@
             
             // 选中新卡片
             newCard.classList.add('selected');
+            setTimeout(() => {
+                randomSkill(newOperator);
+            }, 100);
         }
         
+        
+        function randomSkill(operator) {
+            // 获取技能显示区域
+            const skillDisplay = document.getElementById(`skill-${operator.name.replace(/\s+/g, '-')}`);
+
+            // 根据干员星级决定可选的技能数量
+            let skillNames = [];
+            if (operator.rarity === 6) {
+                skillNames = ["技能一", "技能二", "技能三"];
+            } else if (operator.rarity >= 4) {
+                skillNames = ["技能一", "技能二"];
+            } else {
+                skillNames = ["技能一"];
+            }
+
+            // 随机选择一个技能
+            const randomIndex = Math.floor(Math.random() * skillNames.length);
+            const selectedSkill = skillNames[randomIndex];
+
+            // 显示选中的技能
+            skillDisplay.innerHTML = `<i class="fas fa-star"></i> ${selectedSkill}`;
+
+            // 添加动画效果
+            skillDisplay.style.animation = 'none';
+            setTimeout(() => {
+                skillDisplay.style.animation = 'fadeIn 0.5s ease';
+            }, 10);
+        }
+
         // 初始化
         window.addEventListener('DOMContentLoaded', () => {
             // 默认隐藏选择提示
