@@ -1132,6 +1132,29 @@
             background: rgba(212, 175, 55, 0.5);
             transform: translateY(-2px);
         }
+
+        .view-toggle_2 {
+            position: absolute;
+            top: 110px;
+            right: 20px;
+            background: linear-gradient(90deg, #2a4a7a 0%, #3a5a8a 100%);
+            color: #ff97b8;
+            border: 1px solid #ff97b8;
+            border-radius: 20px;
+            padding: 8px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .view-toggle_2:hover {
+            background: linear-gradient(90deg, #3a5a8a 0%, #4a6a9a 100%);
+            transform: translateY(-2px);
+        }
         
         /* 简约版卡片样式 */
         .simple-mode .operator-card {
@@ -1197,6 +1220,7 @@
         .simple-mode .selection-hint {
             font-size: 0.8rem;
         }
+        
 
     </style>
 </head>
@@ -1207,6 +1231,12 @@
             <i class="fas fa-exchange-alt"></i>
             <span>切换到简约版</span>
         </div>
+        
+        <div class="view-toggle_2" id="bilibiliBtn">
+            <i class="fab fa-bilibili"></i> 
+            <span>求求给作者点个关注吧</span>
+        </div>
+        
 
         <header>
             <h1><img src="https://patchwiki.biligame.com/images/arknights/thumb/6/6a/qvvez8zf5ikr7sg0cl0be7x1hfms1mo.png/75px-Icon_rhodes_island.png" alt="logo" style="width:100px;height:80px;vertical-align:-15px;margin-right:5px;">
@@ -1892,6 +1922,10 @@
                 dropdown.classList.toggle('active');
             });
         });
+
+        document.getElementById('bilibiliBtn').onclick = function() {
+            window.open('https://space.bilibili.com/188735891', '_blank');
+        };
         
         // 导入按钮功能
         const importBtn = document.getElementById('importBtn');
