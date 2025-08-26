@@ -2072,7 +2072,7 @@
             // 确保最小星级不大于最大星级
             if (parseInt(minRaritySlider.value) > parseInt(maxRaritySlider.value)) {
                 maxRaritySlider.value = minRaritySlider.value;
-                maxRarityValue.textContent = minRaritySlider.value;
+                maxRarityValue.value = minRaritySlider.value;
             }
         });
         
@@ -2081,7 +2081,8 @@
             // 确保最大星级不小于最小星级
             if (parseInt(maxRaritySlider.value) < parseInt(minRaritySlider.value)) {
                 minRaritySlider.value = maxRaritySlider.value;
-                minRarityValue.textContent = maxRaritySlider.value;
+                minRarityValue.value = maxRaritySlider.value;
+                
             }
         });
 
