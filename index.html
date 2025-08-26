@@ -2068,7 +2068,7 @@
         const maxRarityValue = document.getElementById('maxRarityValue');
         
         minRaritySlider.addEventListener('input', () => {
-            minRarityValue.textContent = minRaritySlider.value;
+            minRarityValue.value = minRaritySlider.value;
             // 确保最小星级不大于最大星级
             if (parseInt(minRaritySlider.value) > parseInt(maxRaritySlider.value)) {
                 maxRaritySlider.value = minRaritySlider.value;
@@ -2077,7 +2077,7 @@
         });
         
         maxRaritySlider.addEventListener('input', () => {
-            maxRarityValue.textContent = maxRaritySlider.value;
+            maxRarityValue.value = maxRaritySlider.value;
             // 确保最大星级不小于最小星级
             if (parseInt(maxRaritySlider.value) < parseInt(minRaritySlider.value)) {
                 minRaritySlider.value = maxRaritySlider.value;
